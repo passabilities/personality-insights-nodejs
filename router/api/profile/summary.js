@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
+
 'use strict';
 
-var express = require('express');
 
-var router = express.Router();
+var getProfile = require('../../../helpers/personality-insights').profile;
+var TextSummary = require('../../../public/js/components/personality-text-summary.standalone');
 
-// Extending router with api methods
-require('./profile/text')(router);
-require('./profile/summary')(router);
-require('./profile/twitter')(router);
 
-module.exports = router;
+function getSummary(req, res, next) {
+  var profile = getProfile(req.body).then(profile => {
+      var textSummary = new TextSummary(req.body.language),
+          summary = textSummary.getSummary(profile);
+
+      res.json(summary);
+  });
+}
+
+
+module.exports = (router) => {
+  console.log('here')
+  router.post('/profile/summary', getSummary);
+};
